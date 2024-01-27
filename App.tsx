@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {
   SafeAreaView,
   StatusBar,
@@ -26,6 +26,7 @@ import ChannelsList from './src/components/channels/List';
 
 function App(): React.JSX.Element {
   const [subscriptions, setSubscriptions] = useState<Subscriptions>(null);
+  const accessToken = useRef();
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -56,25 +57,35 @@ function App(): React.JSX.Element {
   };
 
   const fetchYouTubeData = async () => {
-    const accessToken = await GoogleSignin.getTokens();
-    //'https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails,contentOwnerDetails,topicDetails&mine=true',
-    console.log('accessToken: ', accessToken);
+    console.log('fetchYouTubeData ');
+    const getAccessToken = await GoogleSignin.getTokens();
     const response = await fetch(
-      'https://www.googleapis.com/youtube/v3/subscriptions?part=snippet,contentDetails,subscriberSnippet&mine=true&maxResults=50',
+      'https://www.googleapis.com/youtube/v3/subscriptions?part=snippet,contentDetails,subscriberSnippet&mine=true&maxResults=5',
       {
-        headers: {Authorization: `Bearer ${accessToken.accessToken}`},
+        headers: {Authorization: `Bearer ${getAccessToken.accessToken}`},
       },
     );
     const data: Subscriptions = await response.json();
-    // Traitez les données reçues de l'API YouTube
-    console.log('DATA: ', JSON.stringify(data));
+    accessToken.current = getAccessToken.accessToken;
+    console.log('DATA: ', data);
     setSubscriptions(data);
   };
   const onLoginTouch = () => {
     signInWithGoogle();
   };
 
-  console.log('YOUHOU: ');
+  const fetchNext = async () => {
+    console.log('FETCH NEXT!');
+    const nextTokenRequest = `https://www.googleapis.com/youtube/v3/subscriptions?part=snippet,contentDetails,subscriberSnippet&mine=true&maxResults=50&pageToken=${subscriptions.nextPageToken}`;
+    const response = await fetch(nextTokenRequest, {
+      headers: {Authorization: `Bearer ${accessToken.current}`},
+    });
+    const data: Subscriptions = await response.json();
+    setSubscriptions(previous => {
+      return {...previous, ...data};
+    });
+  };
+
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar
@@ -99,29 +110,15 @@ function App(): React.JSX.Element {
             FETCH
           </Text>
         </TouchableOpacity>
-        {subscriptions && <ChannelsList data={subscriptions.items} />}
+        {subscriptions && (
+          <ChannelsList data={subscriptions.items} fetchNext={fetchNext} />
+        )}
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
 });
 
 export default App;

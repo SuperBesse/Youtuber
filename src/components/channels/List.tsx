@@ -1,6 +1,5 @@
 import {
   FlatList,
-  ListRenderItemInfo,
   StyleSheet,
   Text,
   View,
@@ -10,6 +9,7 @@ import React, {useCallback} from 'react';
 
 type Props = {
   data: Channel[];
+  fetchNext: () => void;
 };
 
 const styles = StyleSheet.create({
@@ -25,19 +25,23 @@ const styles = StyleSheet.create({
 });
 
 const ChannelsList = (props: Props) => {
-  const {data} = props;
+  const {data, fetchNext} = props;
   const keyExtractor = useCallback((item: Channel) => {
     return item.id;
   }, []);
 
-  const renderItem = ({item}) => {
+  const renderItem = useCallback(({item}) => {
     console.log('render item:', item);
     return (
       <View style={styles.item}>
         <Text style={styles.title}>{item.snippet.title}</Text>
       </View>
     );
-  };
+  }, []);
+
+  const onEndReached = useCallback(() => {
+    fetchNext();
+  }, [fetchNext]);
 
   return (
     <FlatList
