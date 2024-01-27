@@ -5,10 +5,9 @@
  * @format
  */
 
-import React, {useEffect} from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -22,8 +21,11 @@ import {
   GoogleSignin,
   GoogleSigninButton,
 } from '@react-native-google-signin/google-signin';
+import {Subscriptions} from './src/data/subscriptions';
+import ChannelsList from './src/components/channels/List';
 
 function App(): React.JSX.Element {
+  const [subscriptions, setSubscriptions] = useState<Subscriptions>(null);
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -55,50 +57,50 @@ function App(): React.JSX.Element {
 
   const fetchYouTubeData = async () => {
     const accessToken = await GoogleSignin.getTokens();
-
+    //'https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails,contentOwnerDetails,topicDetails&mine=true',
     console.log('accessToken: ', accessToken);
     const response = await fetch(
-      'https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true',
+      'https://www.googleapis.com/youtube/v3/subscriptions?part=snippet,contentDetails,subscriberSnippet&mine=true&maxResults=50',
       {
         headers: {Authorization: `Bearer ${accessToken.accessToken}`},
       },
     );
-    const data = await response.json();
+    const data: Subscriptions = await response.json();
     // Traitez les données reçues de l'API YouTube
-    console.log('DATA: ', data);
+    console.log('DATA: ', JSON.stringify(data));
+    setSubscriptions(data);
   };
   const onLoginTouch = () => {
     signInWithGoogle();
   };
 
+  console.log('YOUHOU: ');
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={{flex: 1}}>
-        <View
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            flex: 1,
-          }}>
-          <GoogleSigninButton
-            size={GoogleSigninButton.Size.Wide}
-            color={GoogleSigninButton.Color.Dark}
-            onPress={onLoginTouch}
-            disabled={false}
-          />
-          <TouchableOpacity onPress={fetchYouTubeData}>
-            <Text style={{color: isDarkMode ? Colors.white : Colors.black}}>
-              FETCH
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+      <View
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          flex: 1,
+          backgroundColor: 'green',
+        }}>
+        <GoogleSigninButton
+          size={GoogleSigninButton.Size.Wide}
+          color={GoogleSigninButton.Color.Dark}
+          onPress={onLoginTouch}
+          disabled={false}
+        />
+        <TouchableOpacity onPress={fetchYouTubeData}>
+          <Text style={{color: isDarkMode ? Colors.white : Colors.black}}>
+            FETCH
+          </Text>
+        </TouchableOpacity>
+        {subscriptions && <ChannelsList data={subscriptions.items} />}
+      </View>
     </SafeAreaView>
   );
 }
