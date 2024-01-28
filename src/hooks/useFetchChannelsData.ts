@@ -1,59 +1,78 @@
+import {Channel} from '../data/channel';
 import {useState, useEffect, useCallback} from 'react';
 
-type UseInfiniteLoadProps = {
+type useFetchChannelsDataProps = {
   apiUrl: string;
-  tokenKey: string;
+  part: string;
+  mine: boolean;
+  maxResults: number;
+  accessToken: string;
 };
 
 type ApiResponse = {
-  data: any[]; // Remplacez `any` par le type de données spécifique que votre API renvoie
-  nextToken: string | null;
+  items: Channel[];
+  nextPageToken: string | null;
 };
 
-type UseInfiniteLoadReturn = {
-  data: any[]; // Remplacez `any` par le type de données spécifique que votre API renvoie
+type useFetchChannelsDataReturn = {
+  data: Channel[];
   isLoading: boolean;
   error: Error | null;
 };
 
-const useInfiniteLoad = ({
+const useFetchChannelsData = ({
   apiUrl,
-  tokenKey,
-}: UseInfiniteLoadProps): UseInfiniteLoadReturn => {
-  const [data, setData] = useState<any[]>([]);
+  part,
+  mine,
+  maxResults,
+  accessToken,
+}: useFetchChannelsDataProps): useFetchChannelsDataReturn => {
+  const [data, setData] = useState<Channel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [nextToken, setNextToken] = useState<string | null>(null);
+
+  const getChannelsUrl = useCallback(() => {
+    if (nextToken) {
+      return `${apiUrl}?part=${part}&mine=${mine}&maxResults=${maxResults}&pageToken=${nextToken}`;
+    } else {
+      return `${apiUrl}?part=${part}&mine=${mine}&maxResults=${maxResults}`;
+    }
+  }, [apiUrl, maxResults, mine, nextToken, part]);
 
   const loadMore = useCallback(() => {
-    if (isLoading || token === null) {
-      return;
-    }
-
     setIsLoading(true);
-    fetch(`${apiUrl}?${tokenKey}=${token}`)
+    fetch(getChannelsUrl(), {
+      headers: {Authorization: `Bearer ${accessToken}`},
+    })
       .then(response => response.json())
       .then((result: ApiResponse) => {
-        setData(prevData => [...prevData, ...result.data]);
-        setToken(result.nextToken);
-        setIsLoading(false);
-
-        // Si un nextToken est disponible, rappeler loadMore
-        if (result.nextToken) {
-          loadMore();
-        }
+        setData(prevData => [...prevData, ...result.items]);
+        setNextToken(prev =>
+          prev !== result.nextPageToken ? result.nextPageToken : null,
+        );
       })
       .catch((err: Error) => {
         setError(err);
         setIsLoading(false);
       });
-  }, [apiUrl, token, tokenKey, isLoading]);
+  }, [getChannelsUrl, accessToken]);
 
   useEffect(() => {
-    loadMore();
-  }, [loadMore]);
+    if (data.length === 0) {
+      loadMore();
+    }
+  }, []);
 
-  return {data, isLoading, error, loadMore};
+  useEffect(() => {
+    if (nextToken !== undefined && nextToken !== null) {
+      loadMore();
+    } else {
+      setIsLoading(false);
+    }
+  }, [loadMore, nextToken]);
+
+  return {data, isLoading, error};
 };
 
-export default useInfiniteLoad;
+export default useFetchChannelsData;

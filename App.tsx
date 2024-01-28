@@ -5,13 +5,12 @@
  * @format
  */
 
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
   useColorScheme,
   View,
 } from 'react-native';
@@ -26,7 +25,9 @@ import ChannelsList from './src/components/channels/List';
 
 function App(): React.JSX.Element {
   const [subscriptions, setSubscriptions] = useState<Subscriptions>(null);
-  const accessToken = useRef();
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
+
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -56,34 +57,23 @@ function App(): React.JSX.Element {
     }
   };
 
-  const fetchYouTubeData = async () => {
-    console.log('fetchYouTubeData ');
-    const getAccessToken = await GoogleSignin.getTokens();
-    const response = await fetch(
-      'https://www.googleapis.com/youtube/v3/subscriptions?part=snippet,contentDetails,subscriberSnippet&mine=true&maxResults=5',
-      {
-        headers: {Authorization: `Bearer ${getAccessToken.accessToken}`},
-      },
-    );
-    const data: Subscriptions = await response.json();
-    accessToken.current = getAccessToken.accessToken;
-    console.log('DATA: ', data);
-    setSubscriptions(data);
-  };
+  useEffect(() => {
+    const getAccessToken = async () => {
+      const isGoogleSignedIn = await GoogleSignin.isSignedIn();
+      console.log('isGoogleSignedIn => ', isGoogleSignedIn);
+      if (isGoogleSignedIn) {
+        const userInfo = await GoogleSignin.signInSilently();
+        const accessTokenValue = await GoogleSignin.getTokens();
+        setAccessToken(accessTokenValue.accessToken);
+      }
+      setIsSignedIn(isGoogleSignedIn);
+    };
+    //manage logout state
+    getAccessToken();
+  }, []);
+
   const onLoginTouch = () => {
     signInWithGoogle();
-  };
-
-  const fetchNext = async () => {
-    console.log('FETCH NEXT!');
-    const nextTokenRequest = `https://www.googleapis.com/youtube/v3/subscriptions?part=snippet,contentDetails,subscriberSnippet&mine=true&maxResults=50&pageToken=${subscriptions.nextPageToken}`;
-    const response = await fetch(nextTokenRequest, {
-      headers: {Authorization: `Bearer ${accessToken.current}`},
-    });
-    const data: Subscriptions = await response.json();
-    setSubscriptions(previous => {
-      return {...previous, ...data};
-    });
   };
 
   return (
@@ -99,26 +89,19 @@ function App(): React.JSX.Element {
           flex: 1,
           backgroundColor: 'green',
         }}>
+        {!isSignedIn && <Text>PAS LOGIN</Text>}
         <GoogleSigninButton
           size={GoogleSigninButton.Size.Wide}
           color={GoogleSigninButton.Color.Dark}
           onPress={onLoginTouch}
           disabled={false}
         />
-        <TouchableOpacity onPress={fetchYouTubeData}>
-          <Text style={{color: isDarkMode ? Colors.white : Colors.black}}>
-            FETCH
-          </Text>
-        </TouchableOpacity>
-        {subscriptions && (
-          <ChannelsList data={subscriptions.items} fetchNext={fetchNext} />
-        )}
+        {accessToken && <ChannelsList accessToken={accessToken} />}
       </View>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-});
+const styles = StyleSheet.create({});
 
 export default App;
