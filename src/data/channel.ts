@@ -18,7 +18,7 @@ export type Channel = {
     newItemCount: number;
     activityType: 'all' | 'uploads';
   };
-  subscriberSnippet: {
+  subscriberSnippet?: {
     title: string;
     description: string;
     channelId: string;

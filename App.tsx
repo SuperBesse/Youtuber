@@ -87,7 +87,6 @@ function App(): React.JSX.Element {
           justifyContent: 'center',
           alignItems: 'center',
           flex: 1,
-          backgroundColor: 'green',
         }}>
         {!isSignedIn && <Text>PAS LOGIN</Text>}
         <GoogleSigninButton
