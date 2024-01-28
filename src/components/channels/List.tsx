@@ -5,8 +5,9 @@ import {
   View,
   Image,
   ListRenderItem,
+  SectionList
 } from 'react-native';
-import {Channel, sortChannels} from '../../data/channel';
+import {Channel, groupedChannels, sortChannels} from '../../data/channel';
 import React, {useCallback, useMemo} from 'react';
 import useFetchChannelsData from './../../hooks/useFetchChannelsData';
 
@@ -69,17 +70,21 @@ const ChannelsList = (props: Props) => {
   });
 
   const sortData = useMemo(() => {
-    return sortChannels(data);
+    const grouped = groupedChannels(data);
+    return grouped;
   }, [data]);
 
   return (
     <View>
       {isLoading && <Text>Is loading ...</Text>}
-      <FlatList
+      <SectionList
         style={{flex: 1}}
         keyExtractor={keyExtractor}
-        data={sortData}
+        sections={sortData}
         renderItem={renderItem}
+        renderSectionHeader={({ section: { title } }) => (
+            <Text style={styles.header}>{title}</Text>
+        )}
       />
     </View>
   );
