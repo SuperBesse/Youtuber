@@ -84,8 +84,6 @@ function App(): React.JSX.Element {
       />
       <View
         style={{
-          justifyContent: 'center',
-          alignItems: 'center',
           flex: 1,
         }}>
         {!isSignedIn && <Text>PAS LOGIN</Text>}
