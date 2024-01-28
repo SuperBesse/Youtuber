@@ -6,8 +6,8 @@ import {
   Image,
   ListRenderItem,
 } from 'react-native';
-import {Channel} from '../../data/channel';
-import React, {useCallback} from 'react';
+import {Channel, sortChannels} from '../../data/channel';
+import React, {useCallback, useMemo} from 'react';
 import useFetchChannelsData from './../../hooks/useFetchChannelsData';
 
 type Props = {
@@ -27,10 +27,13 @@ const styles = StyleSheet.create({
 });
 //TODO:
 // sort by alpha
-//display by section
+// display by section
 // display by total video
 // checker si newItemCount correspond à des videos non vues
 // ouvrir une chaine
+//créer un drawer:
+//  - logout button
+//  - changement de tri
 
 const ChannelsList = (props: Props) => {
   const {accessToken} = props;
@@ -65,13 +68,17 @@ const ChannelsList = (props: Props) => {
     accessToken: accessToken,
   });
 
+  const sortData = useMemo(() => {
+    return sortChannels(data);
+  }, [data]);
+
   return (
     <View>
       {isLoading && <Text>Is loading ...</Text>}
       <FlatList
         style={{flex: 1}}
         keyExtractor={keyExtractor}
-        data={data}
+        data={sortData}
         renderItem={renderItem}
       />
     </View>

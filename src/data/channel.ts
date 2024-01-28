@@ -25,3 +25,23 @@ export type Channel = {
     thumbnails: Thumbnails;
   };
 };
+
+export const sortChannels = (channels: Channel[]) => {
+  return channels.sort((a: Channel, b: Channel) => {
+    // Assurez-vous que title existe et est une chaîne de caractères
+    const titleA = a.snippet.title
+      ? a.snippet.title.toString().toLowerCase()
+      : '';
+    const titleB = b.snippet.title
+      ? b.snippet.title.toString().toLowerCase()
+      : '';
+
+    if (titleA < titleB) {
+      return -1;
+    }
+    if (titleA > titleB) {
+      return 1;
+    }
+    return 0;
+  });
+};
