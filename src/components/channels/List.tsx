@@ -1,5 +1,4 @@
 import {
-  FlatList,
   StyleSheet,
   Text,
   View,
@@ -8,7 +7,7 @@ import {
   SectionList,
   TouchableOpacity,
 } from 'react-native';
-import {Channel, groupedChannels, sortChannels} from '../../data/channel';
+import {Channel, groupedChannels} from '../../data/channel';
 import React, {useCallback, useMemo, useRef} from 'react';
 import useFetchChannelsData from './../../hooks/useFetchChannelsData';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -16,6 +15,7 @@ import NewAlert from './NewAlert';
 
 type Props = {
   accessToken: string;
+  onTouch: (channel: Channel) => void;
 };
 
 const CELL_HEIGHT = 300;
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
 const VIDEO_ICON_SIZE = 20;
 
 const ChannelsList = (props: Props) => {
-  const {accessToken} = props;
+  const {accessToken, onTouch} = props;
   const sectionListRef = useRef();
 
   const keyExtractor = useCallback((item: Channel) => {
@@ -135,7 +135,7 @@ const ChannelsList = (props: Props) => {
 
   const renderItem: ListRenderItem<Channel> = useCallback(({item}) => {
     return (
-      <View style={styles.item}>
+      <TouchableOpacity style={styles.item} onPress={() => onTouch(item)}>
         <Image
           style={styles.avatar}
           source={{uri: item.snippet.thumbnails.high.url}}
@@ -160,14 +160,14 @@ const ChannelsList = (props: Props) => {
             )}
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }, []);
 
   //<Text style={styles.description}>{item.snippet.description}</Text>
   const {data, isLoading, error} = useFetchChannelsData({
     apiUrl: 'https://www.googleapis.com/youtube/v3/subscriptions',
-    part: 'snippet,contentDetails',
+    part: 'snippet,contentDetails,id,subscriberSnippet',
     mine: true,
     maxResults: 50,
     accessToken: accessToken,
