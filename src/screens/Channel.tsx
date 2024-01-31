@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {Text, View, Image, StyleSheet} from 'react-native';
 import type {Channel as ChannelType} from '../data/channel';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -12,8 +12,12 @@ type Props = NativeStackScreenProps<{
 }>;
 
 const Channel = (props: Props) => {
-  const {route} = props;
+  const {route, navigation} = props;
   const {channel, accessToken} = route.params;
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({title: channel.snippet.title});
+  }, [navigation, channel]);
 
   const {data, isLoading, error} = useFetchChannelVideo({
     apiUrl: 'https://www.googleapis.com/youtube/v3/search',
@@ -26,15 +30,21 @@ const Channel = (props: Props) => {
   const results = data.filter((result: SearchResult) => {
     return result.id.kind === 'youtube#video';
   });
+
+  const openVideo = useCallback(
+    (item: SearchResult) => {
+      navigation.navigate('Video', {video: item, accessToken: accessToken});
+    },
+    [accessToken, navigation],
+  );
+
   return (
     <View style={{flex: 1}}>
       <Image
         style={styles.avatar}
         source={{uri: channel.snippet.thumbnails.high.url}}
       />
-      <Text>{channel.snippet.title}</Text>
-      <Text>{channel.snippet.resourceId.channelId}</Text>
-      <ChannelVideosList data={results} />
+      <ChannelVideosList data={results} onTouch={openVideo} />
     </View>
   );
 };

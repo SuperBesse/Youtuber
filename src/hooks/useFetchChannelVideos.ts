@@ -45,7 +45,7 @@ const useFetchChannelVideo = ({
     if (nextToken) {
       return `${apiUrl}?part=${part}&maxResults=${maxResults}&pageToken=${nextToken}&channelId=${channelId}&order=date`;
     } else {
-      return `${apiUrl}?part=${part}&maxResults=${maxResults}&channelId=${channelId}&key=${'AIzaSyBpMHbfgiHwTcNCcSDQV6Zz0quTeJdPxec&order=date'}`;
+      return `${apiUrl}?part=${part}&maxResults=${maxResults}&channelId=${channelId}&order=date`;
     }
   }, [apiUrl, channelId, maxResults, nextToken, part]);
 
