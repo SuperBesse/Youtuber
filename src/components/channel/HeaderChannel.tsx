@@ -23,7 +23,9 @@ const HeaderChannel = (props: Props) => {
   const subscribers = `Subscribers: ${nFormatter(
     Number(channel?.statistics?.subscriberCount),
   )}`;
-  const hiddenSubscribers = `viewCount: ${channel?.statistics?.viewCount}`;
+  const hiddenSubscribers = `viewCount: ${nFormatter(
+    Number(channel?.statistics?.viewCount),
+  )}`;
   const videoCount = `Total videos: ${channel?.statistics?.videoCount}`;
   return (
     <View style={styles.container}>

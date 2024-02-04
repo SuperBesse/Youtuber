@@ -21,6 +21,9 @@ type Props = {
 const CELL_HEIGHT = 300;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   item: {
     backgroundColor: '#f9c2ff',
     padding: 20,
@@ -122,7 +125,6 @@ const styles = StyleSheet.create({
 // afficher les playslists de la chaine
 // ouvrir une playlist
 
-
 //créer un drawer:
 //  - logout button
 //  - changement de tri
@@ -133,14 +135,13 @@ const styles = StyleSheet.create({
 // ajouter une recherche de chaines dans le drawer
 // afficher la liste de recherche
 //ouvrir une liste en mode recherche
-//pouvoir s'abonner à une chaine 
+//pouvoir s'abonner à une chaine
 //tenter le picture in picture
 // chargzr les playlists de la chaine
 
 //afficher le status for kid in channel status madeForKids
 // rajouter le nombre de chaine pour kids dans la page de stats
 //s'en servir comme argument pour suivre ce que regardent un public mineur
-
 
 const VIDEO_ICON_SIZE = 20;
 
@@ -211,7 +212,6 @@ const ChannelsList = (props: Props) => {
   );
 
   const getItemLayout = (data, index) => {
-    const [section] = data;
     const length = CELL_HEIGHT;
     const headerHeight = 0;
     const totalHeight = length + headerHeight;
@@ -228,24 +228,40 @@ const ChannelsList = (props: Props) => {
     );
   }, []);
 
-  return (
-    <View style={{flex: 1}}>
-      {isLoading && <Text>Is loading ...</Text>}
-      <SectionList
-        ref={sectionListRef}
-        keyExtractor={keyExtractor}
-        sections={sortData}
-        renderItem={renderItem}
-        getItemLayout={getItemLayout}
-        renderSectionHeader={renderHeader}
-      />
-      <View style={styles.indexContainer}>
-        {sectionIndex.map((letter, index) => (
-          <TouchableOpacity key={letter} onPress={() => scrollToSection(index)}>
-            <Text style={styles.indexItem}>{letter}</Text>
-          </TouchableOpacity>
-        ))}
+  console.log(data);
+  const renderListHeaderComponent = useCallback(() => {
+    return (
+      <View style={styles.headerContainer}>
+        <Text style={styles.header}>{`${data.length} abonnements`}</Text>
       </View>
+    );
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      {isLoading && <Text>Is loading ...</Text>}
+      {!isLoading && (
+        <>
+          <SectionList
+            ref={sectionListRef}
+            keyExtractor={keyExtractor}
+            sections={sortData}
+            renderItem={renderItem}
+            getItemLayout={getItemLayout}
+            renderSectionHeader={renderHeader}
+            ListHeaderComponent={renderListHeaderComponent}
+          />
+          <View style={styles.indexContainer}>
+            {sectionIndex.map((letter, index) => (
+              <TouchableOpacity
+                key={letter}
+                onPress={() => scrollToSection(index)}>
+                <Text style={styles.indexItem}>{letter}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </>
+      )}
     </View>
   );
 };

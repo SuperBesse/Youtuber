@@ -7,7 +7,8 @@ import {
 } from '@react-native-google-signin/google-signin';
 import ChannelsList from '../components/channels/List';
 import React, {useEffect, useState} from 'react';
-import {Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
+import {UserInfo} from '../data/userInfo';
 
 type Props = NativeStackScreenProps & {
   channel: Channel;
@@ -16,12 +17,14 @@ type Props = NativeStackScreenProps & {
 const Channels = (props: Props) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
+  const [user, setUser] = useState<UserInfo>();
 
   useEffect(() => {
     const getAccessToken = async () => {
       const isGoogleSignedIn = await GoogleSignin.isSignedIn();
       if (isGoogleSignedIn) {
-        const userInfo = await GoogleSignin.signInSilently();
+        const userInfo: UserInfo = await GoogleSignin.signInSilently();
+        setUser(userInfo);
         const accessTokenValue = await GoogleSignin.getTokens();
         setAccessToken(accessTokenValue.accessToken);
       }
@@ -60,16 +63,16 @@ const Channels = (props: Props) => {
   const {navigation} = props;
   return (
     <View
-      style={{
-        flex: 1,
-      }}>
-      {!isSignedIn && <Text>PAS LOGIN</Text>}
-      <GoogleSigninButton
-        size={GoogleSigninButton.Size.Wide}
-        color={GoogleSigninButton.Color.Dark}
-        onPress={onLoginTouch}
-        disabled={false}
-      />
+      style={styles.container}>
+      {!isSignedIn && (
+        <GoogleSigninButton
+          size={GoogleSigninButton.Size.Wide}
+          color={GoogleSigninButton.Color.Dark}
+          onPress={onLoginTouch}
+          disabled={false}
+        />
+      )}
+      <Text style={styles.givenName}>{user?.user.givenName}</Text>
       {accessToken && (
         <ChannelsList
           accessToken={accessToken}
@@ -84,5 +87,15 @@ const Channels = (props: Props) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  givenName: {
+    fontSize: 24,
+    textAlign: 'center',
+  },
+});
 
 export default Channels;
