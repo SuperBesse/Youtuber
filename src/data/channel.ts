@@ -18,7 +18,7 @@ export type Channel = {
     };
     country: string;
     resourceId?: ResourceId;
-    channelId?: string;
+    channelId: string;
   };
   contentDetails: {
     totalItemCount: number;

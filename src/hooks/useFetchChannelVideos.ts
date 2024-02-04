@@ -56,7 +56,6 @@ const useFetchChannelVideo = ({
     })
       .then(response => response.json())
       .then((result: ApiResponse) => {
-        console.log('RESULT: ', JSON.stringify(result));
         const foundChannel =
           result.items.length > 0 ? result.items[0] : undefined;
         setChannel(foundChannel);

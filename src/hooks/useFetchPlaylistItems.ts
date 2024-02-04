@@ -59,7 +59,6 @@ const useFetchPlaylistItemVideo = ({
     })
       .then(response => response.json())
       .then((result: ApiResponse) => {
-        console.log('RESULT: ', JSON.stringify(result));
           setPlaylistItems(result.items);
         // setNextToken(prev =>
         //   prev !== result.nextPageToken ? result.nextPageToken : null,
