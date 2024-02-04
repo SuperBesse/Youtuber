@@ -10,11 +10,13 @@ import {
 import React, {useCallback} from 'react';
 import {SearchResult} from 'data/searchResults';
 import he from 'he';
+import useFetchPlaylistItems from '../../hooks/useFetchPlaylistItems';
+import {PlaylistItem} from '../../data/playlistItem';
 
 type Props = {
   accessToken: string;
-  onTouch: (video: SearchResult) => void;
-  data: SearchResult[];
+  onTouch?: (video: PlaylistItem) => void;
+  playlistId: string;
 };
 
 const CELL_HEIGHT = 300;
@@ -58,13 +60,13 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'red',
     flex: 1,
-    margin: 20,
   },
 });
 
-const ChannelVideosList = (props: Props) => {
-  const {onTouch, data} = props;
+const PlaylistUploads = (props: Props) => {
+  const {onTouch, accessToken, playlistId} = props;
 
   const keyExtractor = useCallback((item: SearchResult) => {
     return item.id.videoId;
@@ -73,7 +75,16 @@ const ChannelVideosList = (props: Props) => {
   // const renderHeader = useCallback(() => {
   //   return
   // }, []);
-  const renderItem: ListRenderItem<SearchResult> = useCallback(({item}) => {
+
+  const {playlistItems, isLoading, error} = useFetchPlaylistItems({
+    apiUrl: 'https://www.googleapis.com/youtube/v3/playlistItems',
+    part: 'snippet,contentDetails,id,status',
+    accessToken: accessToken,
+    playlistId: playlistId,
+    maxResults: 30,
+  });
+
+  const renderItem: ListRenderItem<PlaylistItem> = useCallback(({item}) => {
     const options = {
       year: 'numeric',
       month: 'long',
@@ -109,10 +120,10 @@ const ChannelVideosList = (props: Props) => {
     <FlatList
       style={{flex: 1}}
       keyExtractor={keyExtractor}
-      data={data}
+      data={playlistItems}
       renderItem={renderItem}
     />
   );
 };
 
-export default ChannelVideosList;
+export default PlaylistUploads;

@@ -1,11 +1,12 @@
-import {Channel} from '../data/channel';
+import {PlaylistItem} from '../data/playlistItem';
 import {useState, useEffect, useCallback} from 'react';
 
-type useFetchChannelVideoDataProps = {
+type useFetchPlaylistItemsDataProps = {
   apiUrl: string;
   part: string;
-  channelId: string;
+  playlistId: string;
   accessToken: string;
+  maxResults: number;
 };
 
 type ApiResponse = {
@@ -18,37 +19,39 @@ type ApiResponse = {
     totalResults: number;
     resultsPerPage: number;
   };
-  items: Channel[];
+  items: PlaylistItem[];
 };
 
-type useFetchChannelVideoDataReturn = {
-  channel?: Channel;
+type useFetchPlaylistItemVideoDataReturn = {
+  playlistItems: PlaylistItem[];
   isLoading: boolean;
   error: Error | null;
 };
 
-const useFetchChannelVideo = ({
+const useFetchPlaylistItemVideo = ({
   apiUrl,
   part,
   accessToken,
-  channelId,
-}: useFetchChannelVideoDataProps): useFetchChannelVideoDataReturn => {
-  const [channel, setChannel] = useState<Channel | undefined>(undefined);
+  playlistId,
+  maxResults,
+}: useFetchPlaylistItemsDataProps): useFetchPlaylistItemVideoDataReturn => {
+
+  const [playlistItems, setPlaylistItems] = useState<PlaylistItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const [nextToken, setNextToken] = useState<string | null>(null);
 
-  const getChannelsUrl = useCallback(() => {
+  const getPlaylistItemsUrl = useCallback(() => {
     if (nextToken) {
-      return `${apiUrl}?part=${part}&pageToken=${nextToken}&id=${channelId}`;
+      return `${apiUrl}?part=${part}&pageToken=${nextToken}&playlistId=${playlistId}&maxResults=${maxResults}`;
     } else {
-      return `${apiUrl}?part=${part}&id=${channelId}`;
+      return `${apiUrl}?part=${part}&playlistId=${playlistId}&maxResults=${maxResults}`;
     }
-  }, [apiUrl, channelId, nextToken, part]);
+  }, [nextToken, apiUrl, part, playlistId, maxResults]);
 
   const loadMore = useCallback(() => {
     setIsLoading(true);
-    fetch(getChannelsUrl(), {
+    fetch(getPlaylistItemsUrl(), {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         ContentType: 'application/x-www-form-urlencoded',
@@ -57,9 +60,7 @@ const useFetchChannelVideo = ({
       .then(response => response.json())
       .then((result: ApiResponse) => {
         console.log('RESULT: ', JSON.stringify(result));
-        const foundChannel =
-          result.items.length > 0 ? result.items[0] : undefined;
-        setChannel(foundChannel);
+          setPlaylistItems(result.items);
         // setNextToken(prev =>
         //   prev !== result.nextPageToken ? result.nextPageToken : null,
         // );
@@ -68,10 +69,10 @@ const useFetchChannelVideo = ({
         setError(err);
         setIsLoading(false);
       });
-  }, [getChannelsUrl, accessToken]);
+  }, [getPlaylistItemsUrl, accessToken]);
 
   useEffect(() => {
-    if (!channel) {
+    if (playlistItems.length === 0) {
       loadMore();
     }
   }, []);
@@ -84,7 +85,7 @@ const useFetchChannelVideo = ({
   //     }
   //   }, [loadMore, nextToken]);
 
-  return {channel, isLoading, error};
+  return {playlistItems, isLoading, error};
 };
 
-export default useFetchChannelVideo;
+export default useFetchPlaylistItemVideo;

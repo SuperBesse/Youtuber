@@ -14,9 +14,6 @@ import {
 } from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
-import Channels from './src/screens/Channels';
-import Channel from './src/screens/Channel';
 import Stack from './src/screens/Stack';
 
 function App(): React.JSX.Element {

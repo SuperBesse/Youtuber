@@ -1,10 +1,12 @@
-import {Channel} from '../data/channel';
+import {Playlist} from '../data/playlist';
+import {SearchResult} from '../data/searchResults';
 import {useState, useEffect, useCallback} from 'react';
 
-type useFetchChannelVideoDataProps = {
+type uuseFetchChannelPlaylistsDataProps = {
   apiUrl: string;
   part: string;
   channelId: string;
+  maxResults: number;
   accessToken: string;
 };
 
@@ -18,33 +20,34 @@ type ApiResponse = {
     totalResults: number;
     resultsPerPage: number;
   };
-  items: Channel[];
+  items: Playlist[];
 };
 
-type useFetchChannelVideoDataReturn = {
-  channel?: Channel;
+type uuseFetchChannelPlaylistsDataReturn = {
+  data: Playlist[];
   isLoading: boolean;
   error: Error | null;
 };
 
-const useFetchChannelVideo = ({
+const useFetchChannelPlaylists = ({
   apiUrl,
   part,
+  maxResults,
   accessToken,
   channelId,
-}: useFetchChannelVideoDataProps): useFetchChannelVideoDataReturn => {
-  const [channel, setChannel] = useState<Channel | undefined>(undefined);
+}: uuseFetchChannelPlaylistsDataProps): uuseFetchChannelPlaylistsDataReturn => {
+  const [data, setData] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const [nextToken, setNextToken] = useState<string | null>(null);
 
   const getChannelsUrl = useCallback(() => {
     if (nextToken) {
-      return `${apiUrl}?part=${part}&pageToken=${nextToken}&id=${channelId}`;
+      return `${apiUrl}?part=${part}&maxResults=${maxResults}&pageToken=${nextToken}&channelId=${channelId}`;
     } else {
-      return `${apiUrl}?part=${part}&id=${channelId}`;
+      return `${apiUrl}?part=${part}&maxResults=${maxResults}&channelId=${channelId}`;
     }
-  }, [apiUrl, channelId, nextToken, part]);
+  }, [apiUrl, channelId, maxResults, nextToken, part]);
 
   const loadMore = useCallback(() => {
     setIsLoading(true);
@@ -57,9 +60,7 @@ const useFetchChannelVideo = ({
       .then(response => response.json())
       .then((result: ApiResponse) => {
         console.log('RESULT: ', JSON.stringify(result));
-        const foundChannel =
-          result.items.length > 0 ? result.items[0] : undefined;
-        setChannel(foundChannel);
+        //setData(prevData => [...prevData, ...result.items]);
         // setNextToken(prev =>
         //   prev !== result.nextPageToken ? result.nextPageToken : null,
         // );
@@ -71,7 +72,7 @@ const useFetchChannelVideo = ({
   }, [getChannelsUrl, accessToken]);
 
   useEffect(() => {
-    if (!channel) {
+    if (data.length === 0) {
       loadMore();
     }
   }, []);
@@ -84,7 +85,7 @@ const useFetchChannelVideo = ({
   //     }
   //   }, [loadMore, nextToken]);
 
-  return {channel, isLoading, error};
+  return {data, isLoading, error};
 };
 
-export default useFetchChannelVideo;
+export default useFetchChannelPlaylists;

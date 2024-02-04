@@ -1,3 +1,4 @@
+import {Localizations} from './localizations';
 import {ResourceId} from './resourceId';
 import {Thumbnails} from './thumbnails';
 
@@ -6,18 +7,74 @@ export type Channel = {
   etag: string;
   id: string;
   snippet: {
-    publishedAt: string;
     title: string;
     description: string;
-    resourceId: ResourceId;
-    channelId: string;
+    customUrl: string;
+    publishedAt: string;
     thumbnails: Thumbnails;
+    localized: {
+      title: string;
+      description: string;
+    };
+    country: string;
+    resourceId?: ResourceId;
+    channelId?: string;
   };
   contentDetails: {
     totalItemCount: number;
     newItemCount: number;
     activityType: 'all' | 'uploads';
+    relatedPlaylists?: {
+      likes: string;
+      favorites: string;
+      uploads: string;
+    };
   };
+  statistics?: {
+    viewCount: number;
+    subscriberCount: number;
+    hiddenSubscriberCount: boolean;
+    videoCount: number;
+  };
+  topicDetails?: {
+    topicIds: string[];
+    topicCategories: string[];
+  };
+  status?: {
+    privacyStatus: string;
+    isLinked: boolean;
+    longUploadsStatus: string;
+    madeForKids: boolean;
+    selfDeclaredMadeForKids: boolean;
+  };
+  brandingSettings?: {
+    channel: {
+      title: string;
+      description: string;
+      keywords: string;
+      trackingAnalyticsAccountId: string;
+      moderateComments: boolean;
+      unsubscribedTrailer: string;
+      defaultLanguage: string;
+      country: string;
+    };
+    watch: {
+      textColor: string;
+      backgroundColor: string;
+      featuredPlaylistId: string;
+    };
+  };
+  auditDetails?: {
+    overallGoodStanding: boolean;
+    communityGuidelinesGoodStanding: boolean;
+    copyrightStrikesGoodStanding: boolean;
+    contentIdClaimsGoodStanding: boolean;
+  };
+  contentOwnerDetails?: {
+    contentOwner: string;
+    timeLinked: string;
+  };
+  localizations?: Localizations;
   subscriberSnippet?: {
     title: string;
     description: string;

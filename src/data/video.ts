@@ -1,3 +1,4 @@
+import {Localizations} from './localizations';
 import {Thumbnails} from './thumbnails';
 
 export type Video = {
@@ -181,16 +182,16 @@ export type Video = {
     thumbnailsAvailability: string;
   };
   suggestions: {
-    processingErrors: [string];
-    processingWarnings: [string];
-    processingHints: [string];
+    processingErrors: string[];
+    processingWarnings: string[];
+    processingHints: string[];
     tagSuggestions: [
       {
         tag: string;
-        categoryRestricts: [string];
+        categoryRestricts: string[];
       },
     ];
-    editorSuggestions: [string];
+    editorSuggestions: string[];
   };
   liveStreamingDetails: {
     actualStartTime: string;
@@ -200,10 +201,5 @@ export type Video = {
     concurrentViewers: number;
     activeLiveChatId: string;
   };
-  localizations: {
-    [key: string]: {
-      title: string;
-      description: string;
-    };
-  };
+  localizations: Localizations;
 };

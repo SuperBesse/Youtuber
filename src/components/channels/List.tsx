@@ -101,7 +101,6 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 22,
     color: 'white',
-
   },
   headerContainer: {
     alignItems: 'center',
@@ -113,15 +112,35 @@ const styles = StyleSheet.create({
 //TODO:
 // **sort by alpha**
 // **display by section**
+// **ouvrir une chaine**
+//**afficher les vidéos de la chaine**
+//**lire une vidéo**
+
 // display by total video
-// ouvrir une chaine
+
+// afficher les infos d'une chaine
+// afficher les playslists de la chaine
+// ouvrir une playlist
+
+
 //créer un drawer:
 //  - logout button
 //  - changement de tri
-// cliquer sur une chaine
-//afficher les vidéos de la chaine
-//lire une vidéo
+
 //afficher des stats comme les chaines par nombre de vidéos
+//bouton se désabonner d'une chaine
+//afficher le nombre d'abonnés
+// ajouter une recherche de chaines dans le drawer
+// afficher la liste de recherche
+//ouvrir une liste en mode recherche
+//pouvoir s'abonner à une chaine 
+//tenter le picture in picture
+// chargzr les playlists de la chaine
+
+//afficher le status for kid in channel status madeForKids
+// rajouter le nombre de chaine pour kids dans la page de stats
+//s'en servir comme argument pour suivre ce que regardent un public mineur
+
 
 const VIDEO_ICON_SIZE = 20;
 
@@ -167,7 +186,7 @@ const ChannelsList = (props: Props) => {
   //<Text style={styles.description}>{item.snippet.description}</Text>
   const {data, isLoading, error} = useFetchChannelsData({
     apiUrl: 'https://www.googleapis.com/youtube/v3/subscriptions',
-    part: 'snippet,contentDetails,id,subscriberSnippet',
+    part: 'snippet,contentDetails,id',
     mine: true,
     maxResults: 50,
     accessToken: accessToken,
