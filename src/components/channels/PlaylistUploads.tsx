@@ -17,6 +17,7 @@ type Props = {
   accessToken: string;
   onTouch?: (video: PlaylistItem) => void;
   playlistId: string;
+  headerComponent: React.ReactNode;
 };
 
 const CELL_HEIGHT = 300;
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
 });
 
 const PlaylistUploads = (props: Props) => {
-  const {onTouch, accessToken, playlistId} = props;
+  const {onTouch, accessToken, playlistId, headerComponent} = props;
 
   const keyExtractor = useCallback((item: SearchResult) => {
     return item.id.videoId;
@@ -122,6 +123,7 @@ const PlaylistUploads = (props: Props) => {
       keyExtractor={keyExtractor}
       data={playlistItems}
       renderItem={renderItem}
+      ListHeaderComponent={headerComponent}
     />
   );
 };

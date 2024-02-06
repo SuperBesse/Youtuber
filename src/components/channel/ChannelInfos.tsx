@@ -41,12 +41,12 @@ const ChannelInfos = (props: Props) => {
   const playlistUploads = channelData?.contentDetails.relatedPlaylists?.uploads;
   return (
     <View style={styles.container}>
-      <HeaderChannel channel={channelData} />
       {playlistUploads && (
         <PlaylistUploads
           accessToken={accessToken}
           playlistId={playlistUploads}
           onTouch={openVideo}
+          headerComponent={<HeaderChannel channel={channelData} />}
         />
       )}
     </View>

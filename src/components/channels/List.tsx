@@ -242,6 +242,7 @@ const ChannelsList = (props: Props) => {
       {isLoading && <Text>Is loading ...</Text>}
       {!isLoading && (
         <>
+          <Text>{`${data.length} abonnements`}</Text>
           <SectionList
             ref={sectionListRef}
             keyExtractor={keyExtractor}
@@ -249,7 +250,6 @@ const ChannelsList = (props: Props) => {
             renderItem={renderItem}
             getItemLayout={getItemLayout}
             renderSectionHeader={renderHeader}
-            ListHeaderComponent={renderListHeaderComponent}
           />
           <View style={styles.indexContainer}>
             {sectionIndex.map((letter, index) => (
